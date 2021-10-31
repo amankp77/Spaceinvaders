@@ -11,7 +11,7 @@ screen = pygame.display.set_mode((800,600))
 
 
 
-font = pygame.font.Font("GameOfSquids.ttf" , 25)
+font = pygame.font.Font("font/GameOfSquids.ttf" , 25)
 fontX = 10
 fontY = 10
 
@@ -52,7 +52,7 @@ def enemy(x,y,enemyImg):
 
 pygame.display.set_caption("Space invaders by Aman")
     
-icon = pygame.image.load("logo.jpg")
+icon = pygame.image.load("images/logo.jpg")
 
 pygame.display.set_icon(icon)
 
@@ -60,7 +60,7 @@ pygame.display.set_icon(icon)
 def main():
     global bullet_state
         
-    mixer.music.load("background.wav")
+    mixer.music.load("music/background.wav")
     mixer.music.play(1000)  #-1 for infinte playing of the song
     
     
@@ -70,12 +70,12 @@ def main():
     hiscore_value = fileo.readline()
     
     
-    backgroundImg = pygame.image.load("background.png")
+    backgroundImg = pygame.image.load("images/background.png")
     backgroundX = 0
     backgroundY = 0
     
     
-    playerImg = pygame.image.load("player.png")
+    playerImg = pygame.image.load("images/player.png")
     playerX = 370
     playerY = 500  
     playerX_change = 0
@@ -86,7 +86,7 @@ def main():
 
     
     
-    bulletImg = pygame.image.load("bullet.png") 
+    bulletImg = pygame.image.load("images/bullet.png") 
     bulletX = 0
     bulletY = 500
     bulletY_change = 10
@@ -115,7 +115,7 @@ def main():
             enemyY_change.append(0)
     
     
-    blastImg = pygame.image.load("blast.png")
+    blastImg = pygame.image.load("images/blast.png")
     
     
     while True:
@@ -129,7 +129,7 @@ def main():
                      playerX_change = 4
                 if event.key == pygame.K_SPACE:
                     if bullet_state is "ready":
-                      bullet_sound = mixer.Sound("laser.wav")
+                      bullet_sound = mixer.Sound("music/laser.wav")
                       bullet_sound.play()
                       bulletX = playerX - 5
                       bullet()
@@ -166,16 +166,16 @@ def main():
             playerX += playerX_change
         player(playerX,playerY,playerImg)
         
-        for i in range(number_of_enemies):
+        for i in range(number_of_enemies): 
             if enemyY[i]>450 : 
                 for j in range(number_of_enemies):
                     enemyY[j] = 2000
-                GAMF = pygame.font.Font("GameOfSquids.ttf", 64)
+                GAMF = pygame.font.Font("font/GameOfSquids.ttf", 64)
                 gameover = GAMF.render("GAME OVER " , True , (255,255,255))
                 screen.blit(gameover , (200,250))
                 mixer.music.stop()
                 if not over:
-                   gameo = mixer.Sound("gameover.mp3")
+                   gameo = mixer.Sound("music/gameover.mp3")
                    gameo.play()
                    over = True
                 gameo = font.render("RESTART" , True , (200,200,200))
@@ -190,11 +190,11 @@ def main():
             if score_value > 50 and score_value<=150 and ii==0:
                 enemyY_change = [z+.1 for z in enemyY_change]
                 ii=1
-                print(enemyY_change)
+                # print(enemyY_change)
             if score_value > 150  and j==0:
                 enemyY_change = [z+.3 for z in enemyY_change]
                 j=1
-                print(enemyY_change)
+                # print(enemyY_change)
                       
             enemyY[i] += enemyY_change[i];
         
@@ -208,7 +208,7 @@ def main():
         
             collision = isCollision(enemyX[i] , enemyY[i] ,  bulletX , bulletY)         
             if collision:
-                collision_sound = mixer.Sound("explosion.wav")
+                collision_sound = mixer.Sound("music/explosion.wav")
                 collision_sound.play()
                 screen.blit(blastImg , (enemyX[i] , enemyY[i]))
                 bullet_state = "ready"

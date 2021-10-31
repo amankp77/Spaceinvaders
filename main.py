@@ -1,4 +1,3 @@
-from typing import overload
 import pygame
 import sys
 import math
@@ -11,17 +10,21 @@ pygame.init()
 screen = pygame.display.set_mode((800,600))
 
 
-over = False
-score_value = 0
-fileo = open("highscore.txt" )
-hiscore_value = fileo.readline()
+
+font = pygame.font.Font("GameOfSquids.ttf" , 25)
+fontX = 10
+fontY = 10
+
+bullet_state = None
+
+
 def showHiScore():  
       fileo = open("highscore.txt" )
       hiscore_value = fileo.readline()
       hiscore = font.render("High-Score : " + str(hiscore_value) , True , (255,255,255))
       screen.blit(hiscore , (500,10))
  
-def showScore(x,y):
+def showScore(x,y,score_value):
      score = font.render("Score : " + str(score_value), True , (255,255,255))
      screen.blit(score , (x,y))
  
@@ -33,7 +36,7 @@ def isCollision(enemyX , enemyY , bulletX , bulletY):
      else:
          return False
  
-def player(x,y):
+def player(x,y,playerImg):
      screen.blit(playerImg , (x, y))
  
 def bullet():
@@ -41,8 +44,8 @@ def bullet():
       bullet_state = "fire"
      #  screen.blit(bulletImg , (x, y))
   
-def enemy(x,y,i):
-     screen.blit(enemyImg[i] , (x, y))
+def enemy(x,y,enemyImg):
+     screen.blit(enemyImg , (x, y))
  
 
 
@@ -50,84 +53,71 @@ def enemy(x,y,i):
 pygame.display.set_caption("Space invaders by Aman")
     
 icon = pygame.image.load("logo.jpg")
-    
-backgroundImg = pygame.image.load("background.png")
-backgroundX = 0
-backgroundY = 0
-
-
-playerImg = pygame.image.load("player.png")
-playerX = 370
-playerY = 500  
-playerX_change = 0
-
-
-
-ii=0
-j=0
-
-replayImg  = pygame.image.load("replay.png")
-
-bulletImg = pygame.image.load("bullet.png") 
-bulletX = 0
-bulletY = 500
-bulletY_change = 10
-bullet_state = "ready"
-
-
-enemyImg = []
-enemyImg.append(pygame.image.load("enemy/1.png"))
-enemyImg.append(pygame.image.load("enemy/1.png"))
-enemyImg.append(pygame.image.load("enemy/3.png"))
-enemyImg.append(pygame.image.load("enemy/4.png"))
-enemyImg.append(pygame.image.load("enemy/2.png"))
-enemyImg.append(pygame.image.load("enemy/3.png"))
-enemyImg.append(pygame.image.load("enemy/2.png"))
-enemyImg.append(pygame.image.load("enemy/4.png"))
-
-enemyX = []
-enemyY = []
-enemyX_change = []
-enemyY_change = []
-number_of_enemies = 8
-for i in range(number_of_enemies):
-        enemyX.append(randint(0,720))
-        enemyY.append(randint(10,150))
-        enemyX_change.append(2)
-        enemyY_change.append(0)
-
-
-blastImg = pygame.image.load("blast.png")
-
-
-font = pygame.font.Font("GameOfSquids.ttf" , 25)
-fontX = 10
-fontY = 10
-
-
-mixer.music.load("background.wav")
-mixer.music.play(1000)  #-1 for infinte playing of the song
-
-
-
-
 
 pygame.display.set_icon(icon)
 
 
 def main():
-    global playerX
     global bullet_state
-    global score_value 
-    global hiscore_value 
-    global playerX_change
-    global bulletX
-    global bulletY
-    global over
-    global screen
-    global enemyY_change
-    global ii,j
+        
+    mixer.music.load("background.wav")
+    mixer.music.play(1000)  #-1 for infinte playing of the song
+    
+    
+    over = False
+    score_value = 0
+    fileo = open("highscore.txt" )
+    hiscore_value = fileo.readline()
+    
+    
+    backgroundImg = pygame.image.load("background.png")
+    backgroundX = 0
+    backgroundY = 0
+    
+    
+    playerImg = pygame.image.load("player.png")
+    playerX = 370
+    playerY = 500  
+    playerX_change = 0
+    
+    
+    ii=0
+    j=0
 
+    
+    
+    bulletImg = pygame.image.load("bullet.png") 
+    bulletX = 0
+    bulletY = 500
+    bulletY_change = 10
+    bullet_state = "ready"
+    
+    
+    enemyImg = []
+    enemyImg.append(pygame.image.load("enemy/1.png"))
+    enemyImg.append(pygame.image.load("enemy/1.png"))
+    enemyImg.append(pygame.image.load("enemy/3.png"))
+    enemyImg.append(pygame.image.load("enemy/4.png"))
+    enemyImg.append(pygame.image.load("enemy/2.png"))
+    enemyImg.append(pygame.image.load("enemy/3.png"))
+    enemyImg.append(pygame.image.load("enemy/2.png"))
+    enemyImg.append(pygame.image.load("enemy/4.png"))
+    
+    enemyX = []
+    enemyY = []
+    enemyX_change = []
+    enemyY_change = []
+    number_of_enemies = 8
+    for i in range(number_of_enemies):
+            enemyX.append(randint(0,720))
+            enemyY.append(randint(10,150))
+            enemyX_change.append(2)
+            enemyY_change.append(0)
+    
+    
+    blastImg = pygame.image.load("blast.png")
+    
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -143,19 +133,16 @@ def main():
                       bullet_sound.play()
                       bulletX = playerX - 5
                       bullet()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                       print("heheh")
+            if event.type == pygame.MOUSEBUTTONDOWN:
                        pos = pygame.mouse.get_pos()
-                       if (replayImg.get_rect().collidepoint(pos)):
-                          print("sdaklsjf")
-              
-    
-    
+                    #    print(replayImg.get_rect().collidepoint(pos))
+                       if (pos[0]>330 and pos[0]<422) and (pos[1]>340 and pos[1]<372):
+                           return 
                     
             if event.type == pygame.KEYUP:
-                if event.key == K_LEFT or event.key == pygame.K_RIGHT:
-                    playerX_change = 0
-            
+                    if event.key == K_LEFT or event.key == pygame.K_RIGHT:
+                        playerX_change = 0
+              
     
         screen.blit(backgroundImg , (0, 0))
         
@@ -177,7 +164,7 @@ def main():
             playerX = 743
         else:
             playerX += playerX_change
-        player(playerX,playerY)
+        player(playerX,playerY,playerImg)
         
         for i in range(number_of_enemies):
             if enemyY[i]>450 : 
@@ -190,7 +177,9 @@ def main():
                 if not over:
                    gameo = mixer.Sound("gameover.mp3")
                    gameo.play()
-                screen.blit(replayImg,(340,350))
+                   over = True
+                gameo = font.render("RESTART" , True , (200,200,200))
+                screen.blit(gameo , (330,340))
                 break
                 
             
@@ -199,23 +188,23 @@ def main():
             if ii==0 and j==0:     
                enemyY_change[i] = .3
             if score_value > 50 and score_value<=150 and ii==0:
-                enemyY_change = [z+.2 for z in enemyY_change]
+                enemyY_change = [z+.1 for z in enemyY_change]
                 ii=1
                 print(enemyY_change)
             if score_value > 150  and j==0:
-                enemyY_change = [z+.5 for z in enemyY_change]
+                enemyY_change = [z+.3 for z in enemyY_change]
                 j=1
                 print(enemyY_change)
                       
             enemyY[i] += enemyY_change[i];
         
-            if enemyX[i]>730:
-               enemyY_change[i] = -200
-               enemyY[i] += 30
-            elif enemyX[i]<=0:
-               enemyY_change[i] = 200
-               enemyY[i] += 30 
-            enemy(enemyX[i],enemyY[i],i)
+            # if enemyX[i]>730:
+            #    enemyY_change[i] = -200
+            #    enemyY[i] += 30
+            # elif enemyX[i]<=0:
+            #    enemyY_change[i] = 200
+            #    enemyY[i] += 30 
+            enemy(enemyX[i],enemyY[i],enemyImg[i])
         
             collision = isCollision(enemyX[i] , enemyY[i] ,  bulletX , bulletY)         
             if collision:
@@ -232,13 +221,14 @@ def main():
                 enemyX[i] = randint(0,720)
                 enemyY[i] = randint(10,150)
                 
-        showScore(fontX,fontY)
+        showScore(fontX,fontY,score_value)
         showHiScore()
   
     
 
         pygame.display.update()
 
-
+   
 while True:
       main()
+      
